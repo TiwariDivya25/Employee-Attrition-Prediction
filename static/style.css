@@ -1,0 +1,219 @@
+/* ===============================
+   EMPLOYEE ATTRITION - KILLER UI
+   Replace your static/style.css
+================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:'Poppins',sans-serif;
+    min-height:100vh;
+    background:
+        radial-gradient(circle at top left,#7f5af0 0%,transparent 30%),
+        radial-gradient(circle at bottom right,#2cb67d 0%,transparent 30%),
+        linear-gradient(135deg,#0f0c29,#302b63,#24243e);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:30px;
+    overflow-x:hidden;
+}
+
+/* floating glow */
+body::before,
+body::after{
+    content:"";
+    position:fixed;
+    width:300px;
+    height:300px;
+    border-radius:50%;
+    filter:blur(100px);
+    z-index:-1;
+    opacity:.45;
+}
+
+body::before{
+    top:0;
+    left:0;
+    background:#7f5af0;
+}
+
+body::after{
+    bottom:0;
+    right:0;
+    background:#2cb67d;
+}
+
+/* main card */
+.container{
+    width:100%;
+    max-width:520px;
+    background:rgba(255,255,255,0.08);
+    backdrop-filter:blur(18px);
+    -webkit-backdrop-filter:blur(18px);
+    border:1px solid rgba(255,255,255,0.15);
+    border-radius:28px;
+    padding:35px;
+    box-shadow:
+        0 20px 60px rgba(0,0,0,.35),
+        inset 0 1px 0 rgba(255,255,255,.12);
+    animation:fadeUp 1s ease;
+}
+
+@keyframes fadeUp{
+    from{
+        opacity:0;
+        transform:translateY(30px);
+    }
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+
+/* heading */
+h1{
+    color:#fff;
+    text-align:center;
+    font-size:30px;
+    font-weight:800;
+    line-height:1.2;
+    margin-bottom:10px;
+    letter-spacing:.5px;
+}
+
+h1::after{
+    content:"Predict Employee Exit Risk";
+    display:block;
+    font-size:13px;
+    font-weight:400;
+    color:rgba(255,255,255,.7);
+    margin-top:8px;
+    letter-spacing:1px;
+    text-transform:uppercase;
+}
+
+/* inputs */
+input{
+    width:100%;
+    margin-top:14px;
+    padding:16px 18px;
+    border:none;
+    outline:none;
+    border-radius:16px;
+    font-size:15px;
+    font-weight:500;
+    color:#fff;
+    background:rgba(255,255,255,.09);
+    border:1px solid rgba(255,255,255,.12);
+    transition:.3s ease;
+}
+
+input::placeholder{
+    color:rgba(255,255,255,.55);
+}
+
+input:focus{
+    transform:translateY(-2px);
+    border-color:#7f5af0;
+    box-shadow:0 0 0 4px rgba(127,90,240,.18);
+    background:rgba(255,255,255,.12);
+}
+
+/* button */
+button{
+    width:100%;
+    margin-top:22px;
+    padding:16px;
+    border:none;
+    border-radius:18px;
+    font-size:16px;
+    font-weight:700;
+    color:#fff;
+    cursor:pointer;
+    letter-spacing:.5px;
+    background:linear-gradient(135deg,#7f5af0,#2cb67d);
+    box-shadow:0 12px 25px rgba(44,182,125,.25);
+    transition:.3s ease;
+}
+
+button:hover{
+    transform:translateY(-3px) scale(1.01);
+    box-shadow:0 18px 30px rgba(127,90,240,.35);
+}
+
+button:active{
+    transform:scale(.98);
+}
+
+/* result box */
+#result{
+    margin-top:24px;
+    padding:18px;
+    border-radius:20px;
+    text-align:center;
+    background:rgba(255,255,255,.08);
+    border:1px solid rgba(255,255,255,.12);
+    color:#fff;
+    min-height:70px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    animation:pulse 2s infinite alternate;
+}
+
+@keyframes pulse{
+    from{
+        box-shadow:0 0 0 rgba(255,255,255,0);
+    }
+    to{
+        box-shadow:0 0 18px rgba(255,255,255,.08);
+    }
+}
+
+#result h2{
+    font-size:24px;
+    font-weight:800;
+    margin-bottom:8px;
+}
+
+#result p{
+    font-size:14px;
+    color:rgba(255,255,255,.75);
+}
+
+/* custom scrollbar */
+::-webkit-scrollbar{
+    width:8px;
+}
+
+::-webkit-scrollbar-thumb{
+    background:#7f5af0;
+    border-radius:10px;
+}
+
+/* responsive */
+@media(max-width:600px){
+
+.container{
+    padding:24px;
+    border-radius:22px;
+}
+
+h1{
+    font-size:24px;
+}
+
+input,
+button{
+    padding:14px;
+}
+
+}
