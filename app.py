@@ -1,30 +1,33 @@
 from flask import Flask, render_template, request, jsonify
 import numpy as np
 import joblib
+import os
 
 app = Flask(__name__)
 
 model = joblib.load("model.pkl")
 scaler = joblib.load("scaler.pkl")
 
-@app.route('/')
+
+@app.route("/")
 def home():
     return render_template("index.html")
 
-@app.route('/predict', methods=['POST'])
+
+@app.route("/predict", methods=["POST"])
 def predict():
     data = request.json
 
     values = np.array([[
-        float(data['age']),
-        float(data['income']),
-        float(data['distance']),
-        float(data['years']),
-        float(data['job']),
-        float(data['env']),
-        float(data['balance']),
-        float(data['companies']),
-        float(data['hike'])
+        float(data["age"]),
+        float(data["income"]),
+        float(data["distance"]),
+        float(data["years"]),
+        float(data["job"]),
+        float(data["env"]),
+        float(data["balance"]),
+        float(data["companies"]),
+        float(data["hike"])
     ]])
 
     scaled = scaler.transform(values)
@@ -39,8 +42,10 @@ def predict():
 
     return jsonify({
         "prediction": result,
-        "confidence": round(prob*100,2)
+        "confidence": round(prob * 100, 2)
     })
 
+
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)

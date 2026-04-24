@@ -2,7 +2,7 @@
 <html>
 <head>
     <title>Employee Attrition Predictor</title>
-    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
 
@@ -26,29 +26,29 @@
 
 <script>
 function predict() {
-    fetch('/predict', {
-        method:'POST',
-        headers:{
-            'Content-Type':'application/json'
+    fetch("/predict", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
         },
-        body:JSON.stringify({
-            age: document.getElementById('age').value,
-            income: document.getElementById('income').value,
-            distance: document.getElementById('distance').value,
-            years: document.getElementById('years').value,
-            job: document.getElementById('job').value,
-            env: document.getElementById('env').value,
-            balance: document.getElementById('balance').value,
-            companies: document.getElementById('companies').value,
-            hike: document.getElementById('hike').value
+        body: JSON.stringify({
+            age: document.getElementById("age").value,
+            income: document.getElementById("income").value,
+            distance: document.getElementById("distance").value,
+            years: document.getElementById("years").value,
+            job: document.getElementById("job").value,
+            env: document.getElementById("env").value,
+            balance: document.getElementById("balance").value,
+            companies: document.getElementById("companies").value,
+            hike: document.getElementById("hike").value
         })
     })
-    .then(res=>res.json())
-    .then(data=>{
-        document.getElementById('result').innerHTML =
-        `<h2>${data.prediction}</h2>
-         <p>Confidence: ${data.confidence}%</p>`;
-    })
+    .then(res => res.json())
+    .then(data => {
+        document.getElementById("result").innerHTML =
+            `<h2>${data.prediction}</h2>
+             <p>Confidence: ${data.confidence}%</p>`;
+    });
 }
 </script>
 
