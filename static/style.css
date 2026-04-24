@@ -217,3 +217,22 @@ button{
 }
 
 }
+hr{
+    margin:40px 0;
+    border:1px solid rgba(255,255,255,0.2);
+}
+
+.note{
+    margin-top:15px;
+    font-size:14px;
+    opacity:0.8;
+    line-height:1.6;
+}
+
+input[type="file"]{
+    margin-top:15px;
+    background:white;
+    padding:12px;
+    border-radius:10px;
+    width:100%;
+}

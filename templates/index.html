@@ -1,37 +1,100 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Employee Attrition Predictor</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Employee Attrition Prediction</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
+
 <body>
 
 <div class="container">
+
     <h1>Employee Attrition Prediction</h1>
+    <p class="subtitle">AI Powered HR Analytics System</p>
 
-    <input type="number" id="age" placeholder="Age">
-    <input type="number" id="income" placeholder="Monthly Income">
-    <input type="number" id="distance" placeholder="Distance From Home">
-    <input type="number" id="years" placeholder="Years At Company">
-    <input type="number" id="job" placeholder="Job Satisfaction (1-4)">
-    <input type="number" id="env" placeholder="Environment Satisfaction (1-4)">
-    <input type="number" id="balance" placeholder="Work Life Balance (1-4)">
-    <input type="number" id="companies" placeholder="Companies Worked">
-    <input type="number" id="hike" placeholder="Salary Hike %">
+    <!-- Single Prediction Section -->
+    <div class="card">
 
-    <button onclick="predict()">Predict</button>
+        <h2>Single Employee Prediction</h2>
 
-    <div id="result"></div>
+        <div class="grid">
+
+            <input type="number" id="age" placeholder="Age">
+
+            <input type="number" id="income" placeholder="Monthly Income">
+
+            <input type="number" id="distance" placeholder="Distance From Home">
+
+            <input type="number" id="years" placeholder="Years At Company">
+
+            <input type="number" id="job" placeholder="Job Satisfaction (1-4)">
+
+            <input type="number" id="env" placeholder="Environment Satisfaction (1-4)">
+
+            <input type="number" id="balance" placeholder="Work Life Balance (1-4)">
+
+            <input type="number" id="companies" placeholder="Companies Worked">
+
+            <input type="number" id="hike" placeholder="Salary Hike %">
+
+        </div>
+
+        <button onclick="predictEmployee()">Predict Attrition</button>
+
+        <div id="result"></div>
+
+    </div>
+
+    <!-- Divider -->
+    <hr>
+
+    <!-- Bulk Upload Section -->
+    <div class="card">
+
+        <h2>Bulk CSV Upload</h2>
+
+        <p class="info">
+            Upload a CSV file containing multiple employee records and download predictions instantly.
+        </p>
+
+        <form action="/bulk_predict" method="POST" enctype="multipart/form-data">
+
+            <input type="file" name="file" accept=".csv" required>
+
+            <button type="submit">Upload CSV & Predict</button>
+
+        </form>
+
+        <div class="sample-box">
+
+            <h3>Required CSV Columns:</h3>
+
+            <p>
+                Age, MonthlyIncome, DistanceFromHome, YearsAtCompany,
+                JobSatisfaction, EnvironmentSatisfaction,
+                WorkLifeBalance, NumCompaniesWorked,
+                PercentSalaryHike
+            </p>
+
+        </div>
+
+    </div>
+
 </div>
 
 <script>
-function predict() {
+function predictEmployee() {
+
     fetch("/predict", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
         },
+
         body: JSON.stringify({
+
             age: document.getElementById("age").value,
             income: document.getElementById("income").value,
             distance: document.getElementById("distance").value,
@@ -41,14 +104,24 @@ function predict() {
             balance: document.getElementById("balance").value,
             companies: document.getElementById("companies").value,
             hike: document.getElementById("hike").value
+
         })
+
     })
-    .then(res => res.json())
+
+    .then(response => response.json())
+
     .then(data => {
-        document.getElementById("result").innerHTML =
-            `<h2>${data.prediction}</h2>
-             <p>Confidence: ${data.confidence}%</p>`;
+
+        document.getElementById("result").innerHTML = `
+            <div class="result-box">
+                <h2>${data.prediction}</h2>
+                <p>Confidence Score: ${data.confidence}%</p>
+            </div>
+        `;
+
     });
+
 }
 </script>
 
