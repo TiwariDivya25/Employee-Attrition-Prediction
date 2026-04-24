@@ -1,4 +1,4 @@
-# 🧠 Employee Attrition Predictor
+# Employee Attrition Predictor
 
 A machine learning web application that predicts whether an employee is likely to leave or stay at a company based on key HR metrics. Built with Flask, scikit-learn, and a modern glassmorphism UI.
 
