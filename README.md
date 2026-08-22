@@ -1,166 +1,164 @@
-# Employee Attrition Predictor
+# Employee Attrition Prediction
 
-A machine learning web application that predicts whether an employee is likely to leave or stay at a company based on key HR metrics. Built with Flask, scikit-learn, and a modern glassmorphism UI.
+An end-to-end machine learning web application that predicts whether an employee is likely to leave a company, built on the IBM HR Analytics Employee Attrition dataset. The app supports both single-employee predictions through a web form and batch predictions via CSV upload, exposing model results through a Flask backend with a simple browser-based interface.
 
----
+## Overview
 
-## Interface 
-> **Home / Prediction Form**
->
-> <img width="1365" height="632" alt="image" src="https://github.com/user-attachments/assets/06900d81-6e2e-46b3-b800-37235a61fa7e" />
+Employee attrition is costly and hard to see coming. This project trains a classification model on historical HR data to flag employees at risk of leaving, so that retention efforts can be targeted rather than reactive. The focus of the project was not just building a working model, but understanding *why* it performs the way it does. This included diagnosing and fixing a data leakage issue during development, and deliberately choosing a simple, well-generalizing model over a more complex one that overfit the data.
 
+## Features
 
----
-
-> **Prediction Result**
->
-> <img width="1365" height="632" alt="image" src="https://github.com/user-attachments/assets/3736ccaf-a613-4352-b7d6-d9beccfc29e4" />
+<img width="1365" height="637" alt="image" src="https://github.com/user-attachments/assets/564f6b73-5a3b-4291-b432-c1ec5e4a328d" />
+<img width="1365" height="633" alt="image" src="https://github.com/user-attachments/assets/860c72e5-35d4-4bc3-83a2-0902aa78b78d" />
+<img width="1365" height="628" alt="image" src="https://github.com/user-attachments/assets/81bfbc28-ff3c-457f-a234-f379c42bb9b9" />
 
 
----
+- **Real-time prediction:** submit a single employee's details through a web form and get an instant attrition prediction
+- **Batch prediction:** upload a CSV of multiple employees and receive predictions for all of them at once
+- **Downloadable reports:** batch results are exported as a CSV with attrition predictions for offline review
+- **REST-style prediction endpoint:** model inference is exposed through the Flask backend, decoupled from the UI
 
-## 🚀 Features
+## Tech Stack
 
-- Predicts employee attrition risk (Leave / Stay) in real time
-- Displays confidence percentage alongside the prediction
-- Clean, responsive glassmorphism UI with animated gradients
-- Decision Tree classifier trained on synthetic HR data
-- REST API endpoint (`/predict`) for easy integration
-- Lightweight — no database required
+| Layer | Technology |
+|---|---|
+| Backend | Flask (Python) |
+| Machine Learning | scikit-learn, pandas |
+| Model | Decision Tree Classifier |
+| Frontend | HTML, CSS (Jinja templates) |
+| Model persistence | joblib |
+| Deployment | Render |
 
----
+## Frontend & Backend
 
-## 🛠️ Tech Stack
+**Backend (Flask):** `app.py` serves as the application's core, handling routing, loading the trained model and scaler at startup, and running inference on incoming requests. It exposes routes for rendering the main page, handling single-prediction form submissions, and processing bulk CSV uploads, applying the same preprocessing pipeline used during training (feature selection, scaling) before passing data to the model. Results are returned either as a rendered prediction on the page or as a downloadable CSV for batch requests.
 
-| Layer        | Technology                        |
-|--------------|-----------------------------------|
-| Backend      | Python, Flask                     |
-| ML Model     | scikit-learn (Decision Tree)      |
-| Preprocessing| StandardScaler (joblib)           |
-| Frontend     | HTML, CSS (Glassmorphism), JS     |
-| Data         | Custom HR attrition CSV dataset   |
+**Frontend (HTML/CSS + Jinja):** The interface is a Flask-rendered template (`templates/index.html`) rather than a separate single-page app. The form for entering employee details and the CSV upload control live on the same page, styled with `static/style.css`. Since Jinja templating is used, the frontend and backend are tightly coupled: form submissions POST directly to Flask routes, and the server renders the resulting prediction back into the page rather than the client fetching JSON and updating the DOM itself. This keeps the app simple and dependency-free, at the cost of the richer interactivity a JS framework would offer.
 
----
+## Application Flow
 
-## 📁 Project Structure
+```mermaid
+flowchart TD
+    A[User opens web app] --> B{Prediction type?}
+    B -->|Single employee| C[Fill out form on index.html]
+    B -->|Batch| D[Upload CSV file]
+
+    C --> E[POST to Flask route]
+    D --> E
+
+    E --> F[Load model.pkl and scaler.pkl]
+    F --> G[Apply preprocessing<br/>select features + scale]
+    G --> H[Model predicts attrition]
+
+    H -->|Single| I[Render result on page]
+    H -->|Batch| J[Generate results CSV]
+
+    I --> K[User sees prediction]
+    J --> L[User downloads bulk_results.csv]
+```
+
+## Dataset
+
+The model is trained on the **IBM HR Analytics Employee Attrition** dataset, filtered down to nine features chosen for their interpretability and relevance to attrition:
+
+- `Age`
+- `MonthlyIncome`
+- `DistanceFromHome`
+- `YearsAtCompany`
+- `JobSatisfaction`
+- `EnvironmentSatisfaction`
+- `WorkLifeBalance`
+- `NumCompaniesWorked`
+- `PercentSalaryHike`
+
+The target variable, `Attrition`, is binary (`Yes`/`No`), with a real-world class imbalance of roughly 84% "No" to 16% "Yes", a factor that directly shaped the modeling approach below.
+
+## Modeling Approach
+
+- **Model:** `DecisionTreeClassifier` from scikit-learn, with `class_weight="balanced"` to account for the class imbalance in the target variable
+- **Preprocessing:** features are standardized with `StandardScaler` before training
+- **Depth selection:** rather than picking a default depth, `max_depth` was swept from 1 through unbounded to find the point of best generalization. Performance peaked at **`max_depth=2`**. Deeper trees showed clear overfitting, with recall degrading from ~43% at depth 2 down to ~17% for an unconstrained tree. This confirmed that with this feature set, a shallow, simple tree generalizes better than a deep, complex one.
+- **Evaluation metric focus:** given the class imbalance, accuracy alone is a misleading metric. A model that always predicts "No" would score ~84% while being useless. Precision, recall, and F1 on the minority ("Yes") class were prioritized, with particular attention to **recall**, since failing to flag an employee who actually leaves is the costlier error for this use case.
+- **Leakage check:** an earlier version of the model reported suspiciously perfect (100%) accuracy/precision/recall. This was traced back to training on a stale, pre-processed dataset rather than the true source data, and resolved by re-verifying the raw dataset's shape and class balance before retraining.
+
+## Project Structure
 
 ```
-employee-attrition-predictor/
-│
-├── app.py                  # Flask app & prediction API
-├── train_model.py          # Model training script
-├── employee_attrition.csv  # Training dataset
-├── model.pkl               # Saved trained model
-├── scaler.pkl              # Saved StandardScaler
-├── requirements.txt        # Python dependencies
-│
+Employee-Attrition-Prediction/
+├── static/
+│   └── style.css
 ├── templates/
-│   └── index.html          # Frontend HTML
-│
-└── static/
-    └── style.css           # Glassmorphism styles
+│   └── index.html
+├── app.py                   # Flask application and prediction routes
+├── train_model.py           # Data loading, preprocessing, training, evaluation
+├── Employee-Attrition.csv   # Source dataset
+├── bulk_results.csv         # Example batch prediction output
+├── model.pkl                # Trained Decision Tree classifier
+├── scaler.pkl               # Fitted StandardScaler
+├── requirements.txt
+├── runtime.txt
+└── README.md
 ```
 
----
+## Getting Started
 
-## ⚙️ Installation & Setup
+### Prerequisites
 
-### 1. Clone the repository
+- Python 3.10+
+- pip
 
-```bash
-git clone https://github.com/your-username/employee-attrition-predictor.git
-cd employee-attrition-predictor
-```
-
-### 2. Install dependencies
+### Installation
 
 ```bash
+git clone https://github.com/TiwariDivya25/Employee-Attrition-Prediction.git
+cd Employee-Attrition-Prediction
 pip install -r requirements.txt
 ```
 
-### 3. Train the model
+### Training the model
+
+To retrain the model from scratch on the source dataset:
 
 ```bash
 python train_model.py
 ```
 
-This generates `model.pkl` and `scaler.pkl` in the project root.
+This will regenerate `model.pkl` and `scaler.pkl`, and print accuracy, precision, recall, F1, and a confusion matrix for the held-out test set.
 
-### 4. Run the Flask app
+### Running the app
 
 ```bash
 python app.py
 ```
 
-Open your browser and navigate to `http://127.0.0.1:5000`
+The app will be available locally at `http://localhost:5000` (or the port specified in `app.py`).
 
----
+## Usage
 
-## 🧪 Input Features
+- **Single prediction:** fill in the employee details form on the homepage and submit to get an instant attrition prediction.
+- **Batch prediction:** upload a CSV file containing the required feature columns to get predictions for multiple employees at once, downloadable as a results file.
 
-| Field                        | Description                          | Range      |
-|------------------------------|--------------------------------------|------------|
-| Age                          | Employee age                         | 18–60      |
-| Monthly Income               | Monthly salary in currency units     | Any        |
-| Distance From Home           | Commute distance (km/miles)          | 1–30       |
-| Years At Company             | Tenure at current company            | 0–40       |
-| Job Satisfaction             | Self-rated job satisfaction          | 1–4        |
-| Environment Satisfaction     | Workplace environment rating         | 1–4        |
-| Work-Life Balance            | Work-life balance rating             | 1–4        |
-| Number of Companies Worked   | Total companies worked at before     | 0–9        |
-| Percent Salary Hike          | Last salary hike percentage          | 10–25      |
+## Model Performance
 
----
+On a held-out test set (20% of the data, stratified by class):
 
-## 📡 API Reference
+| Metric | Score |
+|---|---|
+| Accuracy | ~0.70 |
+| Precision (Yes) | ~0.25 |
+| Recall (Yes) | ~0.43 |
+| F1 (Yes) | ~0.32 |
 
-**Endpoint:** `POST /predict`
+These numbers reflect the inherent difficulty of predicting attrition from a limited feature set on an imbalanced dataset, and the deliberate choice to prioritize recall and generalization over an inflated, overfit accuracy score.
 
-**Request Body (JSON):**
-```json
-{
-  "age": 30,
-  "income": 75000,
-  "distance": 10,
-  "years": 5,
-  "job": 3,
-  "env": 2,
-  "balance": 3,
-  "companies": 2,
-  "hike": 15
-}
-```
+## Future Improvements
 
-**Response (JSON):**
-```json
-{
-  "prediction": "Likely to Stay",
-  "confidence": 82.35
-}
-```
+- Incorporate additional high-signal features (e.g. `OverTime`, `JobRole`, `YearsSinceLastPromotion`)
+- Compare against ensemble methods (Random Forest, Gradient Boosting) for a potential precision/recall improvement
+- Add automated tests for the prediction pipeline
+- Experiment with SMOTE-based oversampling as an alternative to class weighting
 
----
+## Author
 
-## 🤖 Model Details
-
-- **Algorithm:** Decision Tree Classifier
-- **Max Depth:** 5
-- **Preprocessing:** StandardScaler (zero mean, unit variance)
-- **Target:** Binary — `1` (Attrition: Yes) / `0` (Attrition: No)
-- **Training Data:** 4,000+ employee records across 10 features
-
----
-
-## 📦 Requirements
-
-```
-flask
-pandas
-numpy
-scikit-learn
-joblib
-```
-
-## 🙌 Contributing
-
-Pull requests are welcome! For major changes, please open an issue first to discuss what you'd like to change.
+**Divya Tiwari**
+[GitHub](https://github.com/TiwariDivya25)
