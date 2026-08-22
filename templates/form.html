@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Employee Attrition Prediction</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Serif:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<header class="topbar">
+    <div class="brand">
+        <span class="brand-mark">EA</span>
+        <div>
+            <p class="brand-name">Employee Attrition Prediction</p>
+            <p class="brand-tag">AI-powered HR analytics</p>
+        </div>
+    </div>
+    <nav class="page-nav">
+        <a href="{{ url_for('home') }}" class="active">Single Prediction</a>
+        <a href="{{ url_for('bulk_page') }}">Bulk CSV Upload</a>
+    </nav>
+</header>
+
+<main class="container">
+
+    <div class="card">
+
+        <div class="card-head">
+            <h2>Single Employee Prediction</h2>
+            <p class="info">Enter an employee's profile to estimate attrition risk.</p>
+        </div>
+
+        <div class="grid">
+
+            <label class="field">
+                <span class="field-label">Age</span>
+                <input type="number" id="age" placeholder="e.g. 34">
+            </label>
+
+            <label class="field">
+                <span class="field-label">Monthly Income</span>
+                <input type="number" id="income" placeholder="e.g. 5500">
+            </label>
+
+            <label class="field">
+                <span class="field-label">Distance From Home (km)</span>
+                <input type="number" id="distance" placeholder="e.g. 8">
+            </label>
+
+            <label class="field">
+                <span class="field-label">Years At Company</span>
+                <input type="number" id="years" placeholder="e.g. 4">
+            </label>
+
+            <label class="field">
+                <span class="field-label">Job Satisfaction <em>(1&ndash;4)</em></span>
+                <input type="number" id="job" min="1" max="4" placeholder="1&ndash;4">
+            </label>
+
+            <label class="field">
+                <span class="field-label">Environment Satisfaction <em>(1&ndash;4)</em></span>
+                <input type="number" id="env" min="1" max="4" placeholder="1&ndash;4">
+            </label>
+
+            <label class="field">
+                <span class="field-label">Work-Life Balance <em>(1&ndash;4)</em></span>
+                <input type="number" id="balance" min="1" max="4" placeholder="1&ndash;4">
+            </label>
+
+            <label class="field">
+                <span class="field-label">Companies Worked</span>
+                <input type="number" id="companies" placeholder="e.g. 2">
+            </label>
+
+            <label class="field">
+                <span class="field-label">Salary Hike (%)</span>
+                <input type="number" id="hike" placeholder="e.g. 14">
+            </label>
+
+        </div>
+
+        <button onclick="predictEmployee()">Run Prediction</button>
+
+        <div id="result"></div>
+
+    </div>
+
+</main>
+
+<script>
+function predictEmployee() {
+
+    fetch("/predict", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({
+
+            age: document.getElementById("age").value,
+            income: document.getElementById("income").value,
+            distance: document.getElementById("distance").value,
+            years: document.getElementById("years").value,
+            job: document.getElementById("job").value,
+            env: document.getElementById("env").value,
+            balance: document.getElementById("balance").value,
+            companies: document.getElementById("companies").value,
+            hike: document.getElementById("hike").value
+
+        })
+
+    })
+
+    .then(response => response.json())
+
+    .then(data => {
+
+        const isLeaving = data.prediction === "Likely to Leave";
+        const badgeClass = isLeaving ? "risk" : "safe";
+
+        document.getElementById("result").innerHTML = `
+            <div class="result-box ${badgeClass}">
+                <div class="result-head">
+                    <span class="result-badge ${badgeClass}">${data.prediction}</span>
+                    <span class="result-score">${data.confidence}%</span>
+                </div>
+                <div class="meter">
+                    <div class="meter-fill ${badgeClass}" style="width: ${data.confidence}%"></div>
+                </div>
+                <p class="result-caption">Estimated probability of attrition</p>
+            </div>
+        `;
+
+    });
+
+}
+</script>
+
+</body>
+</html>

@@ -22,9 +22,16 @@ FEATURE_COLUMNS = [
 ]
 
 
+# Single prediction page
 @app.route("/")
 def home():
-    return render_template("index.html")
+    return render_template("form.html")
+
+
+# Bulk upload page
+@app.route("/bulk")
+def bulk_page():
+    return render_template("upload.html")
 
 
 # Single prediction

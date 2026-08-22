@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bulk Attrition Prediction</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Serif:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<header class="topbar">
+    <div class="brand">
+        <span class="brand-mark">EA</span>
+        <div>
+            <p class="brand-name">Employee Attrition Prediction</p>
+            <p class="brand-tag">AI-powered HR analytics</p>
+        </div>
+    </div>
+    <nav class="page-nav">
+        <a href="{{ url_for('home') }}">Single Prediction</a>
+        <a href="{{ url_for('bulk_page') }}" class="active">Bulk CSV Upload</a>
+    </nav>
+</header>
+
+<main class="container">
+
+    <div class="card">
+
+        <div class="card-head">
+            <h2>Bulk CSV Upload</h2>
+            <p class="info">Upload a CSV of employee records and download attrition predictions for the whole batch.</p>
+        </div>
+
+        <form action="/bulk_predict" method="POST" enctype="multipart/form-data">
+
+            <label class="dropzone">
+                <input type="file" name="file" accept=".csv" required>
+                <span class="dropzone-icon">&#8593;</span>
+                <span class="dropzone-title">Choose a CSV file</span>
+                <span class="dropzone-sub">or drag and drop it here</span>
+            </label>
+
+            <button type="submit">Upload &amp; Predict</button>
+
+        </form>
+
+        <div class="sample-box">
+            <h3>Required columns</h3>
+            <div class="chip-list">
+                <span class="chip">Age</span>
+                <span class="chip">MonthlyIncome</span>
+                <span class="chip">DistanceFromHome</span>
+                <span class="chip">YearsAtCompany</span>
+                <span class="chip">JobSatisfaction</span>
+                <span class="chip">EnvironmentSatisfaction</span>
+                <span class="chip">WorkLifeBalance</span>
+                <span class="chip">NumCompaniesWorked</span>
+                <span class="chip">PercentSalaryHike</span>
+            </div>
+        </div>
+
+    </div>
+
+    <p class="model-note">Model: Decision Tree (max depth 2) &middot; trained on IBM HR Analytics data</p>
+
+</main>
+
+</body>
+</html>
